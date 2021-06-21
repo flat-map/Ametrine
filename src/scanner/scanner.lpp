@@ -33,7 +33,6 @@ new_lines  \n+
     loc.step();
 %}
 
-;
 {whites} loc.step();
 {new_lines} loc.lines(yyleng); loc.step();
 '+' return yy::parser::make_PLUS(loc);
