@@ -1,0 +1,49 @@
+%skeleton "lalr1.cc"
+%require "3.5.1"
+%defines
+
+%define api.token.constructor
+%define api.value.type variant
+%define parse.assert
+
+%code requires {
+	#include <string>
+	using std::string;
+	class driver;
+}
+
+%param {driver& drv}
+
+%locations
+
+%define parse.trace
+%define parse.error verbose
+
+%code {
+	#include <src/driver/driver.hpp>
+}
+
+%define api.token.prefix {TOK_}
+
+%token <double> NUMBER "number"
+%type <double> expression
+%token
+	PLUS "+"
+
+
+%printer {yyo << $$;} <*>
+%start program;
+
+%%
+
+program:
+	expression {drv.result = $1;}
+
+expression:
+	"number"
+
+%%
+
+void yy::parser::error(const location_type& loc, const string& msg) {
+	std::cerr << loc << ": " << msg << std::endl;
+}

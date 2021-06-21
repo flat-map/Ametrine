@@ -1,0 +1,79 @@
+%{
+    #include <cerrno>
+    #include <climits>
+    #include <cstdlib>
+    #include <cstring>
+    #include <build/parser.tab.hpp>
+    #include <string>
+    using std::string;
+%}
+
+%option noyywrap nounput noinput batch debug c++
+
+%{
+    yy::parser::symbol_type make_NUMBER(
+        const string &s,
+        yy::parser::location_type &loc
+    );
+%}
+
+identity [a-zA-Z][a-zA-Z0-9_]*
+number   [0-9]+(.[0-9]+)?
+whites    [\t ]+
+new_lines  \n+
+
+%{
+    #define YY_USER_ACTION loc.columns(yyleng)
+%}
+
+%%
+
+%{
+    yy::location &loc = drv.location;
+    loc.step();
+%}
+
+;
+{whites} loc.step();
+{new_lines} loc.lines(yyleng); loc.step();
+'+' return yy::parser::make_PLUS(loc);
+
+{number} {
+    return make_NUMBER(yytext, loc);
+}
+
+. {
+    throw yy::parser::syntax_error(loc, "invalid character: " + string(yytext));
+}
+
+<<EOF>> {
+    return yy::parser::make_END(loc);
+}
+
+%%
+
+yy::parser::symbol_type make_NUMBER(
+    const std::string& s,
+    const yy::parser::location_type& loc
+) {
+    errno = 0;
+    long n = strtol(s.c_str(), NULL, 10);
+    if (!(INT_MIN <= n && n <= INT_MAX && errno != ERANGE)) {
+        throw yy::parser::syntax_error(loc, "integer is out of range: " + s);
+        return yy::parser::make_NUMBER((int)n, loc);
+    }
+}
+
+void driver::scan_begin() {
+  yy_flex_debug = trace_scanning;
+  if (file.empty() || file == "-") {
+    yyin = stdin;
+  } else if (!(yyin = fopen(file.c_str(), "r"))) {
+    std::cerr << "cannot open " << file << ": " << strerror(errno) << std::endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
+void driver::scan_end() {
+  fclose(yyin);
+}
