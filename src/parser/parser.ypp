@@ -26,8 +26,6 @@
 
 %token <double> NUMBER "number"
 
-%type <double> expression
-
 %start module;
 
 %%

@@ -393,8 +393,8 @@ int yyFlexLexer::yylex()
 /* %% [3.0] code to copy yytext_ptr to yytext[] goes here, if %array \ */\
 	(yy_c_buf_p) = yy_cp;
 /* %% [4.0] data tables for the DFA and the user's section 1 definitions go here */
-#define YY_NUM_RULES 6
-#define YY_END_OF_BUFFER 7
+#define YY_NUM_RULES 5
+#define YY_END_OF_BUFFER 6
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -402,10 +402,10 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[20] =
+static const flex_int16_t yy_accept[18] =
     {   0,
-        0,    0,    7,    5,    3,    4,    4,    5,    5,    1,
-        3,    4,    2,    1,    0,    1,    1,    1,    0
+        0,    0,    6,    4,    2,    3,    3,    4,    1,    2,
+        3,    1,    0,    1,    1,    1,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -413,9 +413,9 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         1,    1,    4,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    1,    1,    1,    1,    1,    1,    5,    1,
-        1,    1,    1,    1,    6,    1,    1,    7,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,    1,    1,    1,
+        1,    2,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    5,    1,    1,    6,    6,    6,
+        6,    6,    6,    6,    6,    6,    6,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -440,40 +440,42 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[8] =
+static const YY_CHAR yy_meta[7] =
     {   0,
-        1,    1,    2,    1,    1,    1,    1
+        1,    2,    3,    1,    1,    4
     } ;
 
-static const flex_int16_t yy_base[21] =
+static const flex_int16_t yy_base[23] =
     {   0,
-        0,    0,   21,   22,   18,   22,   16,   13,   10,    9,
-       13,   22,    9,    6,    5,    4,    3,    2,   22,    7
+        0,    0,   17,   18,    0,   18,    0,    0,   10,    0,
+       18,    9,    0,    8,    0,    0,   18,   11,    9,    7,
+        6,    5
     } ;
 
-static const flex_int16_t yy_def[21] =
+static const flex_int16_t yy_def[23] =
     {   0,
-       19,    1,   19,   19,   19,   19,   19,   19,   19,   20,
-       19,   19,   19,   20,   19,   20,   19,   20,    0,   19
+       17,    1,   17,   17,   18,   17,   19,   20,   21,   18,
+       17,   21,   22,   21,   22,   14,    0,   17,   17,   17,
+       17,   17
     } ;
 
-static const flex_int16_t yy_nxt[30] =
+static const flex_int16_t yy_nxt[25] =
     {   0,
-        4,    5,    6,    7,    8,    9,   10,   15,   18,   17,
-       18,   17,   16,   13,   11,   16,   14,   13,   12,   11,
-       19,    3,   19,   19,   19,   19,   19,   19,   19
+        4,    5,    6,    7,    8,    9,   13,   13,   15,   13,
+       12,   11,   10,   16,   14,   14,   17,    3,   17,   17,
+       17,   17,   17,   17
     } ;
 
-static const flex_int16_t yy_chk[30] =
+static const flex_int16_t yy_chk[25] =
     {   0,
-        1,    1,    1,    1,    1,    1,    1,   20,   18,   17,
-       16,   15,   14,   13,   11,   10,    9,    8,    7,    5,
-        3,   19,   19,   19,   19,   19,   19,   19,   19
+        1,    1,    1,    1,    1,    1,   21,   21,   22,   21,
+       20,   19,   18,   14,   12,    9,    3,   17,   17,   17,
+       17,   17,   17,   17
     } ;
 
-static const flex_int16_t yy_rule_linenum[6] =
+static const flex_int16_t yy_rule_linenum[5] =
     {   0,
-       29,   34,   38,   42,   47
+       29,   34,   38,   43
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -496,9 +498,9 @@ static const flex_int16_t yy_rule_linenum[6] =
     #define YY_USER_ACTION loc.columns(yyleng);
 
     #define TOKEN(t) yy::MyParser::token::t
-#line 500 "build/lexer.tab.cpp"
-#define YY_NO_INPUT 1
 #line 502 "build/lexer.tab.cpp"
+#define YY_NO_INPUT 1
+#line 504 "build/lexer.tab.cpp"
 
 #define INITIAL 0
 
@@ -700,7 +702,7 @@ YY_DECL
     loc.step();
 
 
-#line 704 "build/lexer.tab.cpp"
+#line 706 "build/lexer.tab.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -729,13 +731,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 20 )
+				if ( yy_current_state >= 18 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_current_state != 19 );
+		while ( yy_current_state != 17 );
 		yy_cp = (yy_last_accepting_cpos);
 		yy_current_state = (yy_last_accepting_state);
 
@@ -754,12 +756,12 @@ do_action:	/* This label is used only to access EOF actions. */
 			{
 			if ( yy_act == 0 )
 				std::cerr << "--scanner backing up\n";
-			else if ( yy_act < 6 )
+			else if ( yy_act < 5 )
 				std::cerr << "--accepting rule at line " << yy_rule_linenum[yy_act] <<
 				         "(\"" << yytext << "\")\n";
-			else if ( yy_act == 6 )
+			else if ( yy_act == 5 )
 				std::cerr << "--accepting default rule (\"" << yytext << "\")\n";
-			else if ( yy_act == 7 )
+			else if ( yy_act == 6 )
 				std::cerr << "--(end of buffer or a NUL)\n";
 			else
 				std::cerr << "--EOF (start condition " << YY_START << ")\n";
@@ -787,38 +789,31 @@ case 2:
 YY_RULE_SETUP
 #line 34 "src/lexer/lexer.lpp"
 {
-    return TOKEN(PLUS);
-}
-	YY_BREAK
-case 3:
-YY_RULE_SETUP
-#line 38 "src/lexer/lexer.lpp"
-{
     loc.step();
 }
 	YY_BREAK
-case 4:
-/* rule 4 can match eol */
+case 3:
+/* rule 3 can match eol */
 YY_RULE_SETUP
-#line 42 "src/lexer/lexer.lpp"
+#line 38 "src/lexer/lexer.lpp"
 {
     loc.lines();
     loc.step();
 }
 	YY_BREAK
-case 5:
+case 4:
 YY_RULE_SETUP
-#line 47 "src/lexer/lexer.lpp"
+#line 43 "src/lexer/lexer.lpp"
 {
     std::cerr << "Lexer: Unrecognized character '" << yytext[0] << "'" << std::endl;
 }
 	YY_BREAK
-case 6:
+case 5:
 YY_RULE_SETUP
-#line 51 "src/lexer/lexer.lpp"
+#line 47 "src/lexer/lexer.lpp"
 ECHO;
 	YY_BREAK
-#line 822 "build/lexer.tab.cpp"
+#line 817 "build/lexer.tab.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1258,7 +1253,7 @@ int yyFlexLexer::yy_get_next_buffer()
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 20 )
+			if ( yy_current_state >= 18 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1291,11 +1286,11 @@ int yyFlexLexer::yy_get_next_buffer()
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 20 )
+		if ( yy_current_state >= 18 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 19);
+	yy_is_jam = (yy_current_state == 17);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1937,7 +1932,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 51 "src/lexer/lexer.lpp"
+#line 47 "src/lexer/lexer.lpp"
 
 
 int yylex(

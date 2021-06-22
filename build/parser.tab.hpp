@@ -367,7 +367,6 @@ namespace yy {
     union union_type
     {
       // "number"
-      // expression
       char dummy1[sizeof (double)];
     };
 
@@ -413,8 +412,7 @@ namespace yy {
     {
       enum yytokentype
       {
-        NUMBER = 258,
-        PLUS = 259
+        NUMBER = 258
       };
     };
 
@@ -505,7 +503,6 @@ namespace yy {
 switch (yytype)
     {
       case 3: // "number"
-      case 7: // expression
         value.template destroy< double > ();
         break;
 
@@ -585,13 +582,13 @@ switch (yytype)
       symbol_type (int tok, location_type l)
         : super_type(token_type (tok), std::move (l))
       {
-        YY_ASSERT (tok == 0 || tok == token::PLUS);
+        YY_ASSERT (tok == 0);
       }
 #else
       symbol_type (int tok, const location_type& l)
         : super_type(token_type (tok), l)
       {
-        YY_ASSERT (tok == 0 || tok == token::PLUS);
+        YY_ASSERT (tok == 0);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -657,21 +654,6 @@ switch (yytype)
       make_NUMBER (const double& v, const location_type& l)
       {
         return symbol_type (token::NUMBER, v, l);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_PLUS (location_type l)
-      {
-        return symbol_type (token::PLUS, std::move (l));
-      }
-#else
-      static
-      symbol_type
-      make_PLUS (const location_type& l)
-      {
-        return symbol_type (token::PLUS, l);
       }
 #endif
 
@@ -981,9 +963,9 @@ switch (yytype)
     {
       yyeof_ = 0,
       yylast_ = 1,     ///< Last index in yytable_.
-      yynnts_ = 3,  ///< Number of nonterminal symbols.
-      yyfinal_ = 4, ///< Termination state number.
-      yyntokens_ = 5  ///< Number of tokens.
+      yynnts_ = 2,  ///< Number of nonterminal symbols.
+      yyfinal_ = 3, ///< Termination state number.
+      yyntokens_ = 4  ///< Number of tokens.
     };
 
 
@@ -993,7 +975,7 @@ switch (yytype)
 
 
 } // yy
-#line 997 "build/parser.tab.hpp"
+#line 979 "build/parser.tab.hpp"
 
 
 

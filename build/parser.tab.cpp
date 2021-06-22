@@ -217,7 +217,6 @@ namespace yy {
     switch (this->type_get ())
     {
       case 3: // "number"
-      case 7: // expression
         value.move< double > (std::move (that.value));
         break;
 
@@ -237,7 +236,6 @@ namespace yy {
     switch (this->type_get ())
     {
       case 3: // "number"
-      case 7: // expression
         value.copy< double > (YY_MOVE (that.value));
         break;
 
@@ -264,7 +262,6 @@ namespace yy {
     switch (this->type_get ())
     {
       case 3: // "number"
-      case 7: // expression
         value.move< double > (YY_MOVE (s.value));
         break;
 
@@ -360,7 +357,6 @@ namespace yy {
     switch (that.type_get ())
     {
       case 3: // "number"
-      case 7: // expression
         value.YY_MOVE_OR_COPY< double > (YY_MOVE (that.value));
         break;
 
@@ -380,7 +376,6 @@ namespace yy {
     switch (that.type_get ())
     {
       case 3: // "number"
-      case 7: // expression
         value.move< double > (YY_MOVE (that.value));
         break;
 
@@ -400,7 +395,6 @@ namespace yy {
     switch (that.type_get ())
     {
       case 3: // "number"
-      case 7: // expression
         value.copy< double > (that.value);
         break;
 
@@ -419,7 +413,6 @@ namespace yy {
     switch (that.type_get ())
     {
       case 3: // "number"
-      case 7: // expression
         value.move< double > (that.value);
         break;
 
@@ -673,7 +666,6 @@ namespace yy {
       switch (yyr1_[yyn])
     {
       case 3: // "number"
-      case 7: // expression
         yylhs.value.emplace< double > ();
         break;
 
@@ -698,19 +690,13 @@ namespace yy {
           switch (yyn)
             {
   case 2:
-#line 37 "src/parser/parser.ypp"
+#line 34 "src/parser/parser.ypp"
                    {std::cout << yystack_[0].value.as < double > () << std::endl;}
-#line 704 "build/parser.tab.cpp"
-    break;
-
-  case 3:
-#line 40 "src/parser/parser.ypp"
-        { yylhs.value.as < double > () = yystack_[0].value.as < double > (); }
-#line 710 "build/parser.tab.cpp"
+#line 696 "build/parser.tab.cpp"
     break;
 
 
-#line 714 "build/parser.tab.cpp"
+#line 700 "build/parser.tab.cpp"
 
             default:
               break;
@@ -988,31 +974,31 @@ namespace yy {
   const signed char
   MyParser::yypact_[] =
   {
-      -3,    -4,     1,    -4,    -4
+      -3,    -4,     1,    -4
   };
 
   const signed char
   MyParser::yydefact_[] =
   {
-       0,     3,     0,     2,     1
+       0,     2,     0,     1
   };
 
   const signed char
   MyParser::yypgoto_[] =
   {
-      -4,    -4,    -4
+      -4,    -4
   };
 
   const signed char
   MyParser::yydefgoto_[] =
   {
-      -1,     2,     3
+      -1,     2
   };
 
   const signed char
   MyParser::yytable_[] =
   {
-       1,     4
+       1,     3
   };
 
   const signed char
@@ -1024,19 +1010,19 @@ namespace yy {
   const signed char
   MyParser::yystos_[] =
   {
-       0,     3,     6,     7,     0
+       0,     3,     5,     0
   };
 
   const signed char
   MyParser::yyr1_[] =
   {
-       0,     5,     6,     7
+       0,     4,     5
   };
 
   const signed char
   MyParser::yyr2_[] =
   {
-       0,     2,     1,     1
+       0,     2,     1
   };
 
 
@@ -1046,15 +1032,14 @@ namespace yy {
   const char*
   const MyParser::yytname_[] =
   {
-  "$end", "error", "$undefined", "\"number\"", "\"+\"", "$accept",
-  "module", "expression", YY_NULLPTR
+  "$end", "error", "$undefined", "\"number\"", "$accept", "module", YY_NULLPTR
   };
 
 #if YYDEBUG
   const signed char
   MyParser::yyrline_[] =
   {
-       0,    37,    37,    40
+       0,    34,    34
   };
 
   // Print the state stack on the debug stream.
@@ -1120,9 +1105,9 @@ namespace yy {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3,     4
+       2,     2,     2,     2,     2,     2,     1,     2,     3
     };
-    const int user_token_number_max_ = 259;
+    const int user_token_number_max_ = 258;
 
     if (t <= 0)
       return yyeof_;
@@ -1133,9 +1118,9 @@ namespace yy {
   }
 
 } // yy
-#line 1137 "build/parser.tab.cpp"
+#line 1122 "build/parser.tab.cpp"
 
-#line 42 "src/parser/parser.ypp"
+#line 36 "src/parser/parser.ypp"
 
 
 void yy::MyParser::error(
