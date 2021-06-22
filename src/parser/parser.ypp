@@ -34,7 +34,7 @@
 
 module
 	: "number" {std::cout << $1 << std::endl;}
-
+	;
 %%
 
 void yy::MyParser::error(
