@@ -25,19 +25,15 @@
 %define parse.error verbose
 
 %token <double> NUMBER "number"
+
 %type <double> expression
-%token
-	PLUS "+"
 
 %start module;
 
 %%
 
-module:
-	expression {std::cout << $1 << std::endl;}
-
-expression:
-	"number"
+module
+	: "number" {std::cout << $1 << std::endl;}
 
 %%
 

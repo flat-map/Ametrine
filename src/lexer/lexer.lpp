@@ -30,10 +30,6 @@ number   -?[0-9]+(.[0-9]+)?
     return TOKEN(NUMBER);
 }
 
-'+' {
-    return TOKEN(PLUS);
-}
-
 [ \t]+ {
     loc.step();
 }
