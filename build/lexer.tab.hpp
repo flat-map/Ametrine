@@ -526,7 +526,7 @@ static int yy_flex_strlen ( const char * );
 #undef yyTABLES_NAME
 #endif
 
-#line 47 "src/lexer/lexer.lpp"
+#line 52 "src/lexer/lexer.lpp"
 
 
 #line 533 "build/lexer.tab.hpp"

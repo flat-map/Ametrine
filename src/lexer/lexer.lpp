@@ -27,7 +27,11 @@ number   -?[0-9]+(.[0-9]+)?
 
 {number} {
     lval.build<double>() = std::stod(yytext);
-    return TOKEN(NUMBER);
+    return TOKEN(DOUBLE_LITERAL);
+}
+
+; {
+    return TOKEN(SEMICOLON);
 }
 
 [ \t]+ {
@@ -38,6 +42,7 @@ number   -?[0-9]+(.[0-9]+)?
     loc.lines();
     loc.step();
 }
+
 
 . {
     std::cerr << "Lexer: Unrecognized character '" << yytext[0] << "'" << std::endl;

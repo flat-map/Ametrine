@@ -4,6 +4,8 @@
 #include "FlexLexer.h"
 #endif
 
+#include <vector>
+
 class MyLexer : public yyFlexLexer {
 public:
     std::vector<string> filenames;

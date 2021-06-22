@@ -8,11 +8,13 @@
 %code requires {
 	#include <string>
 	using std::string;
+	#include <src/ast/ast.hpp>
+	//#include <src/lexer/lexer.hpp>
+	using namespace ast;
 	class MyLexer;
 }
 
-%code {
-	#include <src/lexer/lexer.hpp>
+%code provides {
 	int yylex(
 		yy::MyParser::semantic_type* yylval,
 		yy::MyParser::location_type* location,
@@ -24,19 +26,31 @@
 %define api.value.type variant
 %define parse.error verbose
 
-%token <double> NUMBER "number"
+%token <double> DOUBLE_LITERAL "double_literal"
+%token SEMICOLON ";"
 
-%start module;
+%type <Expression*> expression
+
+%start module
 
 %%
 
 module
-	: "number" {std::cout << $1 << std::endl;}
+	: expression ";" {
+		std::cout << $1->getValue() << std::endl;
+	}
+	;
+
+expression
+	: "double_literal" {
+		$$ = new DoubleExpression($1);
+	}
 	;
 %%
 
 void yy::MyParser::error(
 	const location_type& loc,
-	const string& msg) {
+	const string& msg
+){
 	std::cerr << loc << ": " << msg << std::endl;
 }

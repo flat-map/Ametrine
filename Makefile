@@ -22,10 +22,19 @@ build:
 
 
 
-build/$(name): build/parser.o build/lexer.o build/main.o
+build/$(name): build/ast.o build/parser.o build/lexer.o build/main.o build/ast_getType.o build/ast_getValue.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 build/main.o: src/main.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
+build/ast.o: src/ast/ast.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
+build/ast_getType.o: src/ast/ast_getType.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $^
+
+build/ast_getValue.o: src/ast/ast_getValue.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 build/lexer.o: build/lexer.tab.cpp

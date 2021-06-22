@@ -48,9 +48,12 @@
 
 	#include <string>
 	using std::string;
+	#include <src/ast/ast.hpp>
+	//#include <src/lexer/lexer.hpp>
+	using namespace ast;
 	class MyLexer;
 
-#line 54 "build/parser.tab.hpp"
+#line 57 "build/parser.tab.hpp"
 
 
 # include <cstdlib> // std::abort
@@ -184,7 +187,7 @@
 #endif
 
 namespace yy {
-#line 188 "build/parser.tab.hpp"
+#line 191 "build/parser.tab.hpp"
 
 
 
@@ -366,8 +369,11 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // "number"
-      char dummy1[sizeof (double)];
+      // expression
+      char dummy1[sizeof (Expression*)];
+
+      // "double_literal"
+      char dummy2[sizeof (double)];
     };
 
     /// The size of the largest semantic type.
@@ -412,7 +418,8 @@ namespace yy {
     {
       enum yytokentype
       {
-        NUMBER = 258
+        DOUBLE_LITERAL = 258,
+        SEMICOLON = 259
       };
     };
 
@@ -467,6 +474,19 @@ namespace yy {
       {}
 #endif
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, Expression*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const Expression*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, double&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -502,7 +522,11 @@ namespace yy {
         // Type destructor.
 switch (yytype)
     {
-      case 3: // "number"
+      case 7: // expression
+        value.template destroy< Expression* > ();
+        break;
+
+      case 3: // "double_literal"
         value.template destroy< double > ();
         break;
 
@@ -582,26 +606,26 @@ switch (yytype)
       symbol_type (int tok, location_type l)
         : super_type(token_type (tok), std::move (l))
       {
-        YY_ASSERT (tok == 0);
+        YY_ASSERT (tok == 0 || tok == token::SEMICOLON);
       }
 #else
       symbol_type (int tok, const location_type& l)
         : super_type(token_type (tok), l)
       {
-        YY_ASSERT (tok == 0);
+        YY_ASSERT (tok == 0 || tok == token::SEMICOLON);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, double v, location_type l)
         : super_type(token_type (tok), std::move (v), std::move (l))
       {
-        YY_ASSERT (tok == token::NUMBER);
+        YY_ASSERT (tok == token::DOUBLE_LITERAL);
       }
 #else
       symbol_type (int tok, const double& v, const location_type& l)
         : super_type(token_type (tok), v, l)
       {
-        YY_ASSERT (tok == token::NUMBER);
+        YY_ASSERT (tok == token::DOUBLE_LITERAL);
       }
 #endif
     };
@@ -644,16 +668,31 @@ switch (yytype)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_NUMBER (double v, location_type l)
+      make_DOUBLE_LITERAL (double v, location_type l)
       {
-        return symbol_type (token::NUMBER, std::move (v), std::move (l));
+        return symbol_type (token::DOUBLE_LITERAL, std::move (v), std::move (l));
       }
 #else
       static
       symbol_type
-      make_NUMBER (const double& v, const location_type& l)
+      make_DOUBLE_LITERAL (const double& v, const location_type& l)
       {
-        return symbol_type (token::NUMBER, v, l);
+        return symbol_type (token::DOUBLE_LITERAL, v, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_SEMICOLON (location_type l)
+      {
+        return symbol_type (token::SEMICOLON, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_SEMICOLON (const location_type& l)
+      {
+        return symbol_type (token::SEMICOLON, l);
       }
 #endif
 
@@ -962,10 +1001,10 @@ switch (yytype)
     enum
     {
       yyeof_ = 0,
-      yylast_ = 1,     ///< Last index in yytable_.
-      yynnts_ = 2,  ///< Number of nonterminal symbols.
-      yyfinal_ = 3, ///< Termination state number.
-      yyntokens_ = 4  ///< Number of tokens.
+      yylast_ = 2,     ///< Last index in yytable_.
+      yynnts_ = 3,  ///< Number of nonterminal symbols.
+      yyfinal_ = 4, ///< Termination state number.
+      yyntokens_ = 5  ///< Number of tokens.
     };
 
 
@@ -975,10 +1014,20 @@ switch (yytype)
 
 
 } // yy
-#line 979 "build/parser.tab.hpp"
+#line 1018 "build/parser.tab.hpp"
 
 
 
+// "%code provides" blocks.
+#line 17 "src/parser/parser.ypp"
+
+	int yylex(
+		yy::MyParser::semantic_type* yylval,
+		yy::MyParser::location_type* location,
+		MyLexer& lexer
+	);
+
+#line 1031 "build/parser.tab.hpp"
 
 
 #endif // !YY_YY_BUILD_PARSER_TAB_HPP_INCLUDED

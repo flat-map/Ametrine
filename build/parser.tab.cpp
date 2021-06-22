@@ -40,17 +40,6 @@
 #include "parser.tab.hpp"
 
 
-// Unqualified %code blocks.
-#line 14 "src/parser/parser.ypp"
-
-	#include <src/lexer/lexer.hpp>
-	int yylex(
-		yy::MyParser::semantic_type* yylval,
-		yy::MyParser::location_type* location,
-		MyLexer& lexer
-	);
-
-#line 54 "build/parser.tab.cpp"
 
 
 #ifndef YY_
@@ -141,7 +130,7 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 145 "build/parser.tab.cpp"
+#line 134 "build/parser.tab.cpp"
 
 
   /* Return YYSTR after stripping away unnecessary quotes and
@@ -216,7 +205,11 @@ namespace yy {
   {
     switch (this->type_get ())
     {
-      case 3: // "number"
+      case 7: // expression
+        value.move< Expression* > (std::move (that.value));
+        break;
+
+      case 3: // "double_literal"
         value.move< double > (std::move (that.value));
         break;
 
@@ -235,7 +228,11 @@ namespace yy {
   {
     switch (this->type_get ())
     {
-      case 3: // "number"
+      case 7: // expression
+        value.copy< Expression* > (YY_MOVE (that.value));
+        break;
+
+      case 3: // "double_literal"
         value.copy< double > (YY_MOVE (that.value));
         break;
 
@@ -261,7 +258,11 @@ namespace yy {
     super_type::move (s);
     switch (this->type_get ())
     {
-      case 3: // "number"
+      case 7: // expression
+        value.move< Expression* > (YY_MOVE (s.value));
+        break;
+
+      case 3: // "double_literal"
         value.move< double > (YY_MOVE (s.value));
         break;
 
@@ -356,7 +357,11 @@ namespace yy {
   {
     switch (that.type_get ())
     {
-      case 3: // "number"
+      case 7: // expression
+        value.YY_MOVE_OR_COPY< Expression* > (YY_MOVE (that.value));
+        break;
+
+      case 3: // "double_literal"
         value.YY_MOVE_OR_COPY< double > (YY_MOVE (that.value));
         break;
 
@@ -375,7 +380,11 @@ namespace yy {
   {
     switch (that.type_get ())
     {
-      case 3: // "number"
+      case 7: // expression
+        value.move< Expression* > (YY_MOVE (that.value));
+        break;
+
+      case 3: // "double_literal"
         value.move< double > (YY_MOVE (that.value));
         break;
 
@@ -394,7 +403,11 @@ namespace yy {
     state = that.state;
     switch (that.type_get ())
     {
-      case 3: // "number"
+      case 7: // expression
+        value.copy< Expression* > (that.value);
+        break;
+
+      case 3: // "double_literal"
         value.copy< double > (that.value);
         break;
 
@@ -412,7 +425,11 @@ namespace yy {
     state = that.state;
     switch (that.type_get ())
     {
-      case 3: // "number"
+      case 7: // expression
+        value.move< Expression* > (that.value);
+        break;
+
+      case 3: // "double_literal"
         value.move< double > (that.value);
         break;
 
@@ -665,7 +682,11 @@ namespace yy {
          when using variants.  */
       switch (yyr1_[yyn])
     {
-      case 3: // "number"
+      case 7: // expression
+        yylhs.value.emplace< Expression* > ();
+        break;
+
+      case 3: // "double_literal"
         yylhs.value.emplace< double > ();
         break;
 
@@ -690,13 +711,23 @@ namespace yy {
           switch (yyn)
             {
   case 2:
-#line 34 "src/parser/parser.ypp"
-                   {std::cout << yystack_[0].value.as < double > () << std::endl;}
-#line 696 "build/parser.tab.cpp"
+#line 39 "src/parser/parser.ypp"
+                         {
+		std::cout << yystack_[1].value.as < Expression* > ()->getValue() << std::endl;
+	}
+#line 719 "build/parser.tab.cpp"
+    break;
+
+  case 3:
+#line 45 "src/parser/parser.ypp"
+                           {
+		yylhs.value.as < Expression* > () = new DoubleExpression(yystack_[0].value.as < double > ());
+	}
+#line 727 "build/parser.tab.cpp"
     break;
 
 
-#line 700 "build/parser.tab.cpp"
+#line 731 "build/parser.tab.cpp"
 
             default:
               break;
@@ -974,55 +1005,55 @@ namespace yy {
   const signed char
   MyParser::yypact_[] =
   {
-      -3,    -4,     1,    -4
+      -3,    -4,     1,    -2,    -4,    -4
   };
 
   const signed char
   MyParser::yydefact_[] =
   {
-       0,     2,     0,     1
+       0,     3,     0,     0,     1,     2
   };
 
   const signed char
   MyParser::yypgoto_[] =
   {
-      -4,    -4
+      -4,    -4,    -4
   };
 
   const signed char
   MyParser::yydefgoto_[] =
   {
-      -1,     2
+      -1,     2,     3
   };
 
   const signed char
   MyParser::yytable_[] =
   {
-       1,     3
+       1,     4,     5
   };
 
   const signed char
   MyParser::yycheck_[] =
   {
-       3,     0
+       3,     0,     4
   };
 
   const signed char
   MyParser::yystos_[] =
   {
-       0,     3,     5,     0
+       0,     3,     6,     7,     0,     4
   };
 
   const signed char
   MyParser::yyr1_[] =
   {
-       0,     4,     5
+       0,     5,     6,     7
   };
 
   const signed char
   MyParser::yyr2_[] =
   {
-       0,     2,     1
+       0,     2,     2,     1
   };
 
 
@@ -1032,14 +1063,15 @@ namespace yy {
   const char*
   const MyParser::yytname_[] =
   {
-  "$end", "error", "$undefined", "\"number\"", "$accept", "module", YY_NULLPTR
+  "$end", "error", "$undefined", "\"double_literal\"", "\";\"", "$accept",
+  "module", "expression", YY_NULLPTR
   };
 
 #if YYDEBUG
   const signed char
   MyParser::yyrline_[] =
   {
-       0,    34,    34
+       0,    39,    39,    45
   };
 
   // Print the state stack on the debug stream.
@@ -1105,9 +1137,9 @@ namespace yy {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3
+       2,     2,     2,     2,     2,     2,     1,     2,     3,     4
     };
-    const int user_token_number_max_ = 258;
+    const int user_token_number_max_ = 259;
 
     if (t <= 0)
       return yyeof_;
@@ -1118,13 +1150,14 @@ namespace yy {
   }
 
 } // yy
-#line 1122 "build/parser.tab.cpp"
+#line 1154 "build/parser.tab.cpp"
 
-#line 36 "src/parser/parser.ypp"
+#line 49 "src/parser/parser.ypp"
 
 
 void yy::MyParser::error(
 	const location_type& loc,
-	const string& msg) {
+	const string& msg
+){
 	std::cerr << loc << ": " << msg << std::endl;
 }
