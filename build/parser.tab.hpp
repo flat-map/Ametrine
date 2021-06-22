@@ -419,7 +419,8 @@ namespace yy {
       enum yytokentype
       {
         DOUBLE_LITERAL = 258,
-        SEMICOLON = 259
+        SEMICOLON = 259,
+        PLUS = 260
       };
     };
 
@@ -522,7 +523,7 @@ namespace yy {
         // Type destructor.
 switch (yytype)
     {
-      case 7: // expression
+      case 8: // expression
         value.template destroy< Expression* > ();
         break;
 
@@ -606,13 +607,13 @@ switch (yytype)
       symbol_type (int tok, location_type l)
         : super_type(token_type (tok), std::move (l))
       {
-        YY_ASSERT (tok == 0 || tok == token::SEMICOLON);
+        YY_ASSERT (tok == 0 || tok == token::SEMICOLON || tok == token::PLUS);
       }
 #else
       symbol_type (int tok, const location_type& l)
         : super_type(token_type (tok), l)
       {
-        YY_ASSERT (tok == 0 || tok == token::SEMICOLON);
+        YY_ASSERT (tok == 0 || tok == token::SEMICOLON || tok == token::PLUS);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -693,6 +694,21 @@ switch (yytype)
       make_SEMICOLON (const location_type& l)
       {
         return symbol_type (token::SEMICOLON, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_PLUS (location_type l)
+      {
+        return symbol_type (token::PLUS, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_PLUS (const location_type& l)
+      {
+        return symbol_type (token::PLUS, l);
       }
 #endif
 
@@ -1001,10 +1017,10 @@ switch (yytype)
     enum
     {
       yyeof_ = 0,
-      yylast_ = 2,     ///< Last index in yytable_.
+      yylast_ = 5,     ///< Last index in yytable_.
       yynnts_ = 3,  ///< Number of nonterminal symbols.
       yyfinal_ = 4, ///< Termination state number.
-      yyntokens_ = 5  ///< Number of tokens.
+      yyntokens_ = 6  ///< Number of tokens.
     };
 
 
@@ -1014,7 +1030,7 @@ switch (yytype)
 
 
 } // yy
-#line 1018 "build/parser.tab.hpp"
+#line 1034 "build/parser.tab.hpp"
 
 
 
@@ -1027,7 +1043,7 @@ switch (yytype)
 		MyLexer& lexer
 	);
 
-#line 1031 "build/parser.tab.hpp"
+#line 1047 "build/parser.tab.hpp"
 
 
 #endif // !YY_YY_BUILD_PARSER_TAB_HPP_INCLUDED

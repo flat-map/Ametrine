@@ -27,7 +27,9 @@
 %define parse.error verbose
 
 %token <double> DOUBLE_LITERAL "double_literal"
-%token SEMICOLON ";"
+%token
+	SEMICOLON ";"
+	PLUS "+"
 
 %type <Expression*> expression
 
@@ -44,6 +46,9 @@ module
 expression
 	: "double_literal" {
 		$$ = new DoubleExpression($1);
+	}
+	| expression "+" expression {
+		$$ = new DoubleExpression($1->getValue() + $3->getValue());
 	}
 	;
 %%

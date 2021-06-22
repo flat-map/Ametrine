@@ -30,6 +30,10 @@ number   -?[0-9]+(.[0-9]+)?
     return TOKEN(DOUBLE_LITERAL);
 }
 
+\+ {
+    return TOKEN(PLUS);
+}
+
 ; {
     return TOKEN(SEMICOLON);
 }
