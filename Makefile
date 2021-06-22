@@ -1,17 +1,16 @@
 name = lang
 dir = /home/sotaro/$(name)
 
-scanner = $(name)/src/scanner
-parser  = $(name)/src/parser
-driver  = $(name)/src/driver
-
 CXX = g++
-CXXFLAGS = -Wall -std=c++11 -O2 -I $(dir)
+CXXFLAGS = -Wall -Wextra -std=c++11 -O2 -I $(dir)
 LEX = /usr/bin/flex
 YACC = /usr/bin/bison
 
 
-.PHONY: all
+.PHONY: all run
+
+run: build/lang example/test.lang
+	./build/lang example/test.lang
 
 all: clean build build/$(name)
 
@@ -23,23 +22,22 @@ build:
 
 
 
-build/$(name): build/parser.o build/scanner.o build/main.o build/driver.o
+build/$(name): build/parser.o build/lexer.o build/main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 build/main.o: src/main.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-build/driver.o: src/driver/driver.cpp
-	$(CXX) $(CXXFLAGS) -o $@ -c $^
-
-build/scanner.o: build/scanner.tab.cpp
+build/lexer.o: build/lexer.tab.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
 build/parser.o: build/parser.tab.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
 
-build/scanner.tab.cpp: src/scanner/scanner.lpp
-	$(LEX) -o $@ $^
+build/lexer.tab.cpp: src/lexer/lexer.lpp
+	$(LEX) --header-file=build/lexer.tab.hpp -o $@ $^
 
 build/parser.tab.cpp: src/parser/parser.ypp
 	$(YACC) -o $@ $^
+
+

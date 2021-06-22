@@ -41,11 +41,16 @@
 
 
 // Unqualified %code blocks.
-#line 22 "src/parser/parser.ypp"
+#line 14 "src/parser/parser.ypp"
 
-	#include <src/driver/driver.hpp>
+	#include <src/lexer/lexer.hpp>
+	int yylex(
+		yy::MyParser::semantic_type* yylval,
+		yy::MyParser::location_type* location,
+		MyLexer& lexer
+	);
 
-#line 49 "build/parser.tab.cpp"
+#line 54 "build/parser.tab.cpp"
 
 
 #ifndef YY_
@@ -136,7 +141,7 @@
 #define YYRECOVERING()  (!!yyerrstatus_)
 
 namespace yy {
-#line 140 "build/parser.tab.cpp"
+#line 145 "build/parser.tab.cpp"
 
 
   /* Return YYSTR after stripping away unnecessary quotes and
@@ -145,7 +150,7 @@ namespace yy {
      apostrophe, a comma, or backslash (other than backslash-backslash).
      YYSTR is taken from yytname.  */
   std::string
-  parser::yytnamerr_ (const char *yystr)
+  MyParser::yytnamerr_ (const char *yystr)
   {
     if (*yystr == '"')
       {
@@ -181,56 +186,164 @@ namespace yy {
 
 
   /// Build a parser object.
-  parser::parser (driver& drv_yyarg)
+  MyParser::MyParser (MyLexer &lexer_yyarg)
 #if YYDEBUG
     : yydebug_ (false),
       yycdebug_ (&std::cerr),
 #else
     :
 #endif
-      drv (drv_yyarg)
+      lexer (lexer_yyarg)
   {}
 
-  parser::~parser ()
+  MyParser::~MyParser ()
   {}
 
-  parser::syntax_error::~syntax_error () YY_NOEXCEPT YY_NOTHROW
+  MyParser::syntax_error::~syntax_error () YY_NOEXCEPT YY_NOTHROW
   {}
 
   /*---------------.
   | Symbol types.  |
   `---------------*/
 
+  // basic_symbol.
+#if 201103L <= YY_CPLUSPLUS
+  template <typename Base>
+  MyParser::basic_symbol<Base>::basic_symbol (basic_symbol&& that)
+    : Base (std::move (that))
+    , value ()
+    , location (std::move (that.location))
+  {
+    switch (this->type_get ())
+    {
+      case 3: // "number"
+      case 7: // expression
+        value.move< double > (std::move (that.value));
+        break;
+
+      default:
+        break;
+    }
+
+  }
+#endif
+
+  template <typename Base>
+  MyParser::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
+    : Base (that)
+    , value ()
+    , location (that.location)
+  {
+    switch (this->type_get ())
+    {
+      case 3: // "number"
+      case 7: // expression
+        value.copy< double > (YY_MOVE (that.value));
+        break;
+
+      default:
+        break;
+    }
+
+  }
+
+
+
+  template <typename Base>
+  bool
+  MyParser::basic_symbol<Base>::empty () const YY_NOEXCEPT
+  {
+    return Base::type_get () == empty_symbol;
+  }
+
+  template <typename Base>
+  void
+  MyParser::basic_symbol<Base>::move (basic_symbol& s)
+  {
+    super_type::move (s);
+    switch (this->type_get ())
+    {
+      case 3: // "number"
+      case 7: // expression
+        value.move< double > (YY_MOVE (s.value));
+        break;
+
+      default:
+        break;
+    }
+
+    location = YY_MOVE (s.location);
+  }
+
+  // by_type.
+  MyParser::by_type::by_type ()
+    : type (empty_symbol)
+  {}
+
+#if 201103L <= YY_CPLUSPLUS
+  MyParser::by_type::by_type (by_type&& that)
+    : type (that.type)
+  {
+    that.clear ();
+  }
+#endif
+
+  MyParser::by_type::by_type (const by_type& that)
+    : type (that.type)
+  {}
+
+  MyParser::by_type::by_type (token_type t)
+    : type (yytranslate_ (t))
+  {}
+
+  void
+  MyParser::by_type::clear ()
+  {
+    type = empty_symbol;
+  }
+
+  void
+  MyParser::by_type::move (by_type& that)
+  {
+    type = that.type;
+    that.clear ();
+  }
+
+  int
+  MyParser::by_type::type_get () const YY_NOEXCEPT
+  {
+    return type;
+  }
 
 
   // by_state.
-  parser::by_state::by_state () YY_NOEXCEPT
+  MyParser::by_state::by_state () YY_NOEXCEPT
     : state (empty_state)
   {}
 
-  parser::by_state::by_state (const by_state& that) YY_NOEXCEPT
+  MyParser::by_state::by_state (const by_state& that) YY_NOEXCEPT
     : state (that.state)
   {}
 
   void
-  parser::by_state::clear () YY_NOEXCEPT
+  MyParser::by_state::clear () YY_NOEXCEPT
   {
     state = empty_state;
   }
 
   void
-  parser::by_state::move (by_state& that)
+  MyParser::by_state::move (by_state& that)
   {
     state = that.state;
     that.clear ();
   }
 
-  parser::by_state::by_state (state_type s) YY_NOEXCEPT
+  MyParser::by_state::by_state (state_type s) YY_NOEXCEPT
     : state (s)
   {}
 
-  parser::symbol_number_type
-  parser::by_state::type_get () const YY_NOEXCEPT
+  MyParser::symbol_number_type
+  MyParser::by_state::type_get () const YY_NOEXCEPT
   {
     if (state == empty_state)
       return empty_symbol;
@@ -238,10 +351,10 @@ namespace yy {
       return yystos_[+state];
   }
 
-  parser::stack_symbol_type::stack_symbol_type ()
+  MyParser::stack_symbol_type::stack_symbol_type ()
   {}
 
-  parser::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
+  MyParser::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
     : super_type (YY_MOVE (that.state), YY_MOVE (that.location))
   {
     switch (that.type_get ())
@@ -261,7 +374,7 @@ namespace yy {
 #endif
   }
 
-  parser::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
+  MyParser::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
     : super_type (s, YY_MOVE (that.location))
   {
     switch (that.type_get ())
@@ -280,8 +393,8 @@ namespace yy {
   }
 
 #if YY_CPLUSPLUS < 201103L
-  parser::stack_symbol_type&
-  parser::stack_symbol_type::operator= (const stack_symbol_type& that)
+  MyParser::stack_symbol_type&
+  MyParser::stack_symbol_type::operator= (const stack_symbol_type& that)
   {
     state = that.state;
     switch (that.type_get ())
@@ -299,8 +412,8 @@ namespace yy {
     return *this;
   }
 
-  parser::stack_symbol_type&
-  parser::stack_symbol_type::operator= (stack_symbol_type& that)
+  MyParser::stack_symbol_type&
+  MyParser::stack_symbol_type::operator= (stack_symbol_type& that)
   {
     state = that.state;
     switch (that.type_get ())
@@ -323,7 +436,7 @@ namespace yy {
 
   template <typename Base>
   void
-  parser::yy_destroy_ (const char* yymsg, basic_symbol<Base>& yysym) const
+  MyParser::yy_destroy_ (const char* yymsg, basic_symbol<Base>& yysym) const
   {
     if (yymsg)
       YY_SYMBOL_PRINT (yymsg, yysym);
@@ -332,7 +445,7 @@ namespace yy {
 #if YYDEBUG
   template <typename Base>
   void
-  parser::yy_print_ (std::ostream& yyo,
+  MyParser::yy_print_ (std::ostream& yyo,
                                      const basic_symbol<Base>& yysym) const
   {
     std::ostream& yyoutput = yyo;
@@ -347,29 +460,13 @@ namespace yy {
     yyo << (yytype < yyntokens_ ? "token" : "nterm")
         << ' ' << yytname_[yytype] << " ("
         << yysym.location << ": ";
-    switch (yytype)
-    {
-      case 3: // "number"
-#line 34 "src/parser/parser.ypp"
-                 {yyo << yysym.value.template as < double > ();}
-#line 356 "build/parser.tab.cpp"
-        break;
-
-      case 7: // expression
-#line 34 "src/parser/parser.ypp"
-                 {yyo << yysym.value.template as < double > ();}
-#line 362 "build/parser.tab.cpp"
-        break;
-
-      default:
-        break;
-    }
+    YYUSE (yytype);
     yyo << ')';
   }
 #endif
 
   void
-  parser::yypush_ (const char* m, YY_MOVE_REF (stack_symbol_type) sym)
+  MyParser::yypush_ (const char* m, YY_MOVE_REF (stack_symbol_type) sym)
   {
     if (m)
       YY_SYMBOL_PRINT (m, sym);
@@ -377,7 +474,7 @@ namespace yy {
   }
 
   void
-  parser::yypush_ (const char* m, state_type s, YY_MOVE_REF (symbol_type) sym)
+  MyParser::yypush_ (const char* m, state_type s, YY_MOVE_REF (symbol_type) sym)
   {
 #if 201103L <= YY_CPLUSPLUS
     yypush_ (m, stack_symbol_type (s, std::move (sym)));
@@ -388,40 +485,40 @@ namespace yy {
   }
 
   void
-  parser::yypop_ (int n)
+  MyParser::yypop_ (int n)
   {
     yystack_.pop (n);
   }
 
 #if YYDEBUG
   std::ostream&
-  parser::debug_stream () const
+  MyParser::debug_stream () const
   {
     return *yycdebug_;
   }
 
   void
-  parser::set_debug_stream (std::ostream& o)
+  MyParser::set_debug_stream (std::ostream& o)
   {
     yycdebug_ = &o;
   }
 
 
-  parser::debug_level_type
-  parser::debug_level () const
+  MyParser::debug_level_type
+  MyParser::debug_level () const
   {
     return yydebug_;
   }
 
   void
-  parser::set_debug_level (debug_level_type l)
+  MyParser::set_debug_level (debug_level_type l)
   {
     yydebug_ = l;
   }
 #endif // YYDEBUG
 
-  parser::state_type
-  parser::yy_lr_goto_state_ (state_type yystate, int yysym)
+  MyParser::state_type
+  MyParser::yy_lr_goto_state_ (state_type yystate, int yysym)
   {
     int yyr = yypgoto_[yysym - yyntokens_] + yystate;
     if (0 <= yyr && yyr <= yylast_ && yycheck_[yyr] == yystate)
@@ -431,25 +528,25 @@ namespace yy {
   }
 
   bool
-  parser::yy_pact_value_is_default_ (int yyvalue)
+  MyParser::yy_pact_value_is_default_ (int yyvalue)
   {
     return yyvalue == yypact_ninf_;
   }
 
   bool
-  parser::yy_table_value_is_error_ (int yyvalue)
+  MyParser::yy_table_value_is_error_ (int yyvalue)
   {
     return yyvalue == yytable_ninf_;
   }
 
   int
-  parser::operator() ()
+  MyParser::operator() ()
   {
     return parse ();
   }
 
   int
-  parser::parse ()
+  MyParser::parse ()
   {
     int yyn;
     /// Length of the RHS of the rule being reduced.
@@ -512,8 +609,7 @@ namespace yy {
         try
 #endif // YY_EXCEPTIONS
           {
-            symbol_type yylookahead (yylex (drv));
-            yyla.move (yylookahead);
+            yyla.type = yytranslate_ (yylex (&yyla.value, &yyla.location, lexer));
           }
 #if YY_EXCEPTIONS
         catch (const syntax_error& yyexc)
@@ -602,19 +698,19 @@ namespace yy {
           switch (yyn)
             {
   case 2:
-#line 40 "src/parser/parser.ypp"
-                   {drv.result = yystack_[0].value.as < double > ();}
-#line 608 "build/parser.tab.cpp"
+#line 37 "src/parser/parser.ypp"
+                   {std::cout << yystack_[0].value.as < double > () << std::endl;}
+#line 704 "build/parser.tab.cpp"
     break;
 
   case 3:
-#line 43 "src/parser/parser.ypp"
+#line 40 "src/parser/parser.ypp"
         { yylhs.value.as < double > () = yystack_[0].value.as < double > (); }
-#line 614 "build/parser.tab.cpp"
+#line 710 "build/parser.tab.cpp"
     break;
 
 
-#line 618 "build/parser.tab.cpp"
+#line 714 "build/parser.tab.cpp"
 
             default:
               break;
@@ -782,14 +878,14 @@ namespace yy {
   }
 
   void
-  parser::error (const syntax_error& yyexc)
+  MyParser::error (const syntax_error& yyexc)
   {
     error (yyexc.location, yyexc.what ());
   }
 
   // Generate an error message.
   std::string
-  parser::yysyntax_error_ (state_type yystate, const symbol_type& yyla) const
+  MyParser::yysyntax_error_ (state_type yystate, const symbol_type& yyla) const
   {
     // Number of reported tokens (one for the "unexpected", one per
     // "expected").
@@ -885,60 +981,60 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -4;
+  const signed char MyParser::yypact_ninf_ = -4;
 
-  const signed char parser::yytable_ninf_ = -1;
+  const signed char MyParser::yytable_ninf_ = -1;
 
   const signed char
-  parser::yypact_[] =
+  MyParser::yypact_[] =
   {
       -3,    -4,     1,    -4,    -4
   };
 
   const signed char
-  parser::yydefact_[] =
+  MyParser::yydefact_[] =
   {
        0,     3,     0,     2,     1
   };
 
   const signed char
-  parser::yypgoto_[] =
+  MyParser::yypgoto_[] =
   {
       -4,    -4,    -4
   };
 
   const signed char
-  parser::yydefgoto_[] =
+  MyParser::yydefgoto_[] =
   {
       -1,     2,     3
   };
 
   const signed char
-  parser::yytable_[] =
+  MyParser::yytable_[] =
   {
        1,     4
   };
 
   const signed char
-  parser::yycheck_[] =
+  MyParser::yycheck_[] =
   {
        3,     0
   };
 
   const signed char
-  parser::yystos_[] =
+  MyParser::yystos_[] =
   {
        0,     3,     6,     7,     0
   };
 
   const signed char
-  parser::yyr1_[] =
+  MyParser::yyr1_[] =
   {
        0,     5,     6,     7
   };
 
   const signed char
-  parser::yyr2_[] =
+  MyParser::yyr2_[] =
   {
        0,     2,     1,     1
   };
@@ -948,22 +1044,22 @@ namespace yy {
   // YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
   // First, the terminals, then, starting at \a yyntokens_, nonterminals.
   const char*
-  const parser::yytname_[] =
+  const MyParser::yytname_[] =
   {
   "$end", "error", "$undefined", "\"number\"", "\"+\"", "$accept",
-  "program", "expression", YY_NULLPTR
+  "module", "expression", YY_NULLPTR
   };
 
 #if YYDEBUG
   const signed char
-  parser::yyrline_[] =
+  MyParser::yyrline_[] =
   {
-       0,    40,    40,    43
+       0,    37,    37,    40
   };
 
   // Print the state stack on the debug stream.
   void
-  parser::yystack_print_ ()
+  MyParser::yystack_print_ ()
   {
     *yycdebug_ << "Stack now";
     for (stack_type::const_iterator
@@ -976,7 +1072,7 @@ namespace yy {
 
   // Report on the debug stream that the rule \a yyrule is going to be reduced.
   void
-  parser::yy_reduce_print_ (int yyrule)
+  MyParser::yy_reduce_print_ (int yyrule)
   {
     int yylno = yyrline_[yyrule];
     int yynrhs = yyr2_[yyrule];
@@ -990,13 +1086,60 @@ namespace yy {
   }
 #endif // YYDEBUG
 
+  MyParser::token_number_type
+  MyParser::yytranslate_ (int t)
+  {
+    // YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to
+    // TOKEN-NUM as returned by yylex.
+    static
+    const token_number_type
+    translate_table[] =
+    {
+       0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     2,     3,     4
+    };
+    const int user_token_number_max_ = 259;
+
+    if (t <= 0)
+      return yyeof_;
+    else if (t <= user_token_number_max_)
+      return translate_table[t];
+    else
+      return yy_undef_token_;
+  }
 
 } // yy
-#line 996 "build/parser.tab.cpp"
+#line 1137 "build/parser.tab.cpp"
 
-#line 45 "src/parser/parser.ypp"
+#line 42 "src/parser/parser.ypp"
 
 
-void yy::parser::error(const location_type& loc, const string& msg) {
+void yy::MyParser::error(
+	const location_type& loc,
+	const string& msg) {
 	std::cerr << loc << ": " << msg << std::endl;
 }

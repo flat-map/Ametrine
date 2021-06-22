@@ -1,23 +1,35 @@
-#include <src/driver/deriver.hpp>
 #include <iostream>
+#include <fstream>
+#include <vector>
 
-int main(int argc, const char **argv) {
+#include <build/parser.tab.hpp>
+#include <src/lexer/lexer.hpp>
 
-    int program_result = 0;
+using std::string;
 
-    driver drv;
+int main(int argc, const char* argv[]) {
 
-    for (int i = 1; i < argc; i++) {
-        if (argv[i] == string("-p")) {
-            drv.trace_parsing = true;
-        } else if (argv[i] == string("-s")) {
-            drv.trace_scanning = true;
-        } else if (!drv.parse(argv[i])) {
-            std::cout << drv.result << std::endl;
-        } else {
-            program_result = 1;
-        }
+    if (argc != 2) {
+        std::cerr << "[Error] Usage: " << argv[0] << " " << "input-file" << std::endl;
+        return 1;
     }
 
-    return program_result;
+    string input_file = argv[1];
+    std::ifstream f;
+    f.open(input_file);
+    if (f) {
+        MyLexer lexer;
+        lexer.set_filename(input_file);
+        lexer.switch_streams(&f, &std::cout);
+
+        yy::MyParser parser(lexer);
+        return parser.parse();
+
+    } else {
+        std::cerr << "Error: "
+                  << "No such file or directory: '" << input_file << "'"
+                  << std::endl;
+        return 1;
+    }
+
 }

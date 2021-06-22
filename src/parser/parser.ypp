@@ -1,49 +1,48 @@
 %skeleton "lalr1.cc"
 %require "3.5.1"
 %defines
-
-%define api.token.constructor
-%define api.value.type variant
-%define parse.assert
+%define api.parser.class {MyParser}
+%parse-param {MyLexer &lexer}
+%lex-param   {MyLexer &lexer}
 
 %code requires {
 	#include <string>
 	using std::string;
-	class driver;
+	class MyLexer;
 }
-
-%param {driver& drv}
-
-%locations
-
-%define parse.trace
-%define parse.error verbose
 
 %code {
-	#include <src/driver/driver.hpp>
+	#include <src/lexer/lexer.hpp>
+	int yylex(
+		yy::MyParser::semantic_type* yylval,
+		yy::MyParser::location_type* location,
+		MyLexer& lexer
+	);
 }
 
-%define api.token.prefix {TOK_}
+%locations
+%define api.value.type variant
+%define parse.error verbose
 
 %token <double> NUMBER "number"
 %type <double> expression
 %token
 	PLUS "+"
 
-
-%printer {yyo << $$;} <*>
-%start program;
+%start module;
 
 %%
 
-program:
-	expression {drv.result = $1;}
+module:
+	expression {std::cout << $1 << std::endl;}
 
 expression:
 	"number"
 
 %%
 
-void yy::parser::error(const location_type& loc, const string& msg) {
+void yy::MyParser::error(
+	const location_type& loc,
+	const string& msg) {
 	std::cerr << loc << ": " << msg << std::endl;
 }

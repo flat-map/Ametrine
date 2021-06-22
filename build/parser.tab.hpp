@@ -44,15 +44,15 @@
 #ifndef YY_YY_BUILD_PARSER_TAB_HPP_INCLUDED
 # define YY_YY_BUILD_PARSER_TAB_HPP_INCLUDED
 // "%code requires" blocks.
-#line 9 "src/parser/parser.ypp"
+#line 8 "src/parser/parser.ypp"
 
 	#include <string>
 	using std::string;
-	class driver;
+	class MyLexer;
 
 #line 54 "build/parser.tab.hpp"
 
-# include <cassert>
+
 # include <cstdlib> // std::abort
 # include <iostream>
 # include <stdexcept>
@@ -96,7 +96,7 @@
 # define YY_CONSTEXPR
 #endif
 # include "location.hh"
-#include <typeinfo>
+
 #ifndef YY_ASSERT
 # include <cassert>
 # define YY_ASSERT assert
@@ -180,7 +180,7 @@
 
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 
 namespace yy {
@@ -190,7 +190,7 @@ namespace yy {
 
 
   /// A Bison parser.
-  class parser
+  class MyParser
   {
   public:
 #ifndef YYSTYPE
@@ -208,13 +208,11 @@ namespace yy {
     /// Empty construction.
     semantic_type () YY_NOEXCEPT
       : yybuffer_ ()
-      , yytypeid_ (YY_NULLPTR)
     {}
 
     /// Construct and fill.
     template <typename T>
     semantic_type (YY_RVREF (T) t)
-      : yytypeid_ (&typeid (T))
     {
       YY_ASSERT (sizeof (T) <= size);
       new (yyas_<T> ()) T (YY_MOVE (t));
@@ -222,9 +220,7 @@ namespace yy {
 
     /// Destruction, allowed only if empty.
     ~semantic_type () YY_NOEXCEPT
-    {
-      YY_ASSERT (!yytypeid_);
-    }
+    {}
 
 # if 201103L <= YY_CPLUSPLUS
     /// Instantiate a \a T in here from \a t.
@@ -232,9 +228,6 @@ namespace yy {
     T&
     emplace (U&&... u)
     {
-      YY_ASSERT (!yytypeid_);
-      YY_ASSERT (sizeof (T) <= size);
-      yytypeid_ = & typeid (T);
       return *new (yyas_<T> ()) T (std::forward <U>(u)...);
     }
 # else
@@ -243,9 +236,6 @@ namespace yy {
     T&
     emplace ()
     {
-      YY_ASSERT (!yytypeid_);
-      YY_ASSERT (sizeof (T) <= size);
-      yytypeid_ = & typeid (T);
       return *new (yyas_<T> ()) T ();
     }
 
@@ -254,9 +244,6 @@ namespace yy {
     T&
     emplace (const T& t)
     {
-      YY_ASSERT (!yytypeid_);
-      YY_ASSERT (sizeof (T) <= size);
-      yytypeid_ = & typeid (T);
       return *new (yyas_<T> ()) T (t);
     }
 # endif
@@ -284,9 +271,6 @@ namespace yy {
     T&
     as () YY_NOEXCEPT
     {
-      YY_ASSERT (yytypeid_);
-      YY_ASSERT (*yytypeid_ == typeid (T));
-      YY_ASSERT (sizeof (T) <= size);
       return *yyas_<T> ();
     }
 
@@ -295,9 +279,6 @@ namespace yy {
     const T&
     as () const YY_NOEXCEPT
     {
-      YY_ASSERT (yytypeid_);
-      YY_ASSERT (*yytypeid_ == typeid (T));
-      YY_ASSERT (sizeof (T) <= size);
       return *yyas_<T> ();
     }
 
@@ -313,8 +294,6 @@ namespace yy {
     void
     swap (self_type& that) YY_NOEXCEPT
     {
-      YY_ASSERT (yytypeid_);
-      YY_ASSERT (*yytypeid_ == *that.yytypeid_);
       std::swap (as<T> (), that.as<T> ());
     }
 
@@ -359,7 +338,6 @@ namespace yy {
     destroy ()
     {
       as<T> ().~T ();
-      yytypeid_ = YY_NULLPTR;
     }
 
   private:
@@ -404,9 +382,6 @@ namespace yy {
       /// A buffer large enough to store any of the semantic values.
       char yyraw[size];
     } yybuffer_;
-
-    /// Whether the content is built: if defined, the name of the stored type.
-    const std::type_info *yytypeid_;
   };
 
 #else
@@ -438,8 +413,8 @@ namespace yy {
     {
       enum yytokentype
       {
-        TOK_NUMBER = 258,
-        TOK_PLUS = 259
+        NUMBER = 258,
+        PLUS = 259
       };
     };
 
@@ -610,33 +585,33 @@ switch (yytype)
       symbol_type (int tok, location_type l)
         : super_type(token_type (tok), std::move (l))
       {
-        YY_ASSERT (tok == 0 || tok == token::TOK_PLUS);
+        YY_ASSERT (tok == 0 || tok == token::PLUS);
       }
 #else
       symbol_type (int tok, const location_type& l)
         : super_type(token_type (tok), l)
       {
-        YY_ASSERT (tok == 0 || tok == token::TOK_PLUS);
+        YY_ASSERT (tok == 0 || tok == token::PLUS);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, double v, location_type l)
         : super_type(token_type (tok), std::move (v), std::move (l))
       {
-        YY_ASSERT (tok == token::TOK_NUMBER);
+        YY_ASSERT (tok == token::NUMBER);
       }
 #else
       symbol_type (int tok, const double& v, const location_type& l)
         : super_type(token_type (tok), v, l)
       {
-        YY_ASSERT (tok == token::TOK_NUMBER);
+        YY_ASSERT (tok == token::NUMBER);
       }
 #endif
     };
 
     /// Build a parser object.
-    parser (driver& drv_yyarg);
-    virtual ~parser ();
+    MyParser (MyLexer &lexer_yyarg);
+    virtual ~MyParser ();
 
     /// Parse.  An alias for parse ().
     /// \returns  0 iff parsing succeeded.
@@ -674,14 +649,14 @@ switch (yytype)
       symbol_type
       make_NUMBER (double v, location_type l)
       {
-        return symbol_type (token::TOK_NUMBER, std::move (v), std::move (l));
+        return symbol_type (token::NUMBER, std::move (v), std::move (l));
       }
 #else
       static
       symbol_type
       make_NUMBER (const double& v, const location_type& l)
       {
-        return symbol_type (token::TOK_NUMBER, v, l);
+        return symbol_type (token::NUMBER, v, l);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -689,22 +664,22 @@ switch (yytype)
       symbol_type
       make_PLUS (location_type l)
       {
-        return symbol_type (token::TOK_PLUS, std::move (l));
+        return symbol_type (token::PLUS, std::move (l));
       }
 #else
       static
       symbol_type
       make_PLUS (const location_type& l)
       {
-        return symbol_type (token::TOK_PLUS, l);
+        return symbol_type (token::PLUS, l);
       }
 #endif
 
 
   private:
     /// This class is not copyable.
-    parser (const parser&);
-    parser& operator= (const parser&);
+    MyParser (const MyParser&);
+    MyParser& operator= (const MyParser&);
 
     /// Stored state numbers (used for stacks).
     typedef signed char state_type;
@@ -1013,174 +988,12 @@ switch (yytype)
 
 
     // User arguments.
-    driver& drv;
+    MyLexer &lexer;
   };
 
-  inline
-  parser::token_number_type
-  parser::yytranslate_ (int t)
-  {
-    // YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to
-    // TOKEN-NUM as returned by yylex.
-    static
-    const token_number_type
-    translate_table[] =
-    {
-       0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3,     4
-    };
-    const int user_token_number_max_ = 259;
-
-    if (t <= 0)
-      return yyeof_;
-    else if (t <= user_token_number_max_)
-      return translate_table[t];
-    else
-      return yy_undef_token_;
-  }
-
-  // basic_symbol.
-#if 201103L <= YY_CPLUSPLUS
-  template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (basic_symbol&& that)
-    : Base (std::move (that))
-    , value ()
-    , location (std::move (that.location))
-  {
-    switch (this->type_get ())
-    {
-      case 3: // "number"
-      case 7: // expression
-        value.move< double > (std::move (that.value));
-        break;
-
-      default:
-        break;
-    }
-
-  }
-#endif
-
-  template <typename Base>
-  parser::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
-    : Base (that)
-    , value ()
-    , location (that.location)
-  {
-    switch (this->type_get ())
-    {
-      case 3: // "number"
-      case 7: // expression
-        value.copy< double > (YY_MOVE (that.value));
-        break;
-
-      default:
-        break;
-    }
-
-  }
-
-
-
-  template <typename Base>
-  bool
-  parser::basic_symbol<Base>::empty () const YY_NOEXCEPT
-  {
-    return Base::type_get () == empty_symbol;
-  }
-
-  template <typename Base>
-  void
-  parser::basic_symbol<Base>::move (basic_symbol& s)
-  {
-    super_type::move (s);
-    switch (this->type_get ())
-    {
-      case 3: // "number"
-      case 7: // expression
-        value.move< double > (YY_MOVE (s.value));
-        break;
-
-      default:
-        break;
-    }
-
-    location = YY_MOVE (s.location);
-  }
-
-  // by_type.
-  inline
-  parser::by_type::by_type ()
-    : type (empty_symbol)
-  {}
-
-#if 201103L <= YY_CPLUSPLUS
-  inline
-  parser::by_type::by_type (by_type&& that)
-    : type (that.type)
-  {
-    that.clear ();
-  }
-#endif
-
-  inline
-  parser::by_type::by_type (const by_type& that)
-    : type (that.type)
-  {}
-
-  inline
-  parser::by_type::by_type (token_type t)
-    : type (yytranslate_ (t))
-  {}
-
-  inline
-  void
-  parser::by_type::clear ()
-  {
-    type = empty_symbol;
-  }
-
-  inline
-  void
-  parser::by_type::move (by_type& that)
-  {
-    type = that.type;
-    that.clear ();
-  }
-
-  inline
-  int
-  parser::by_type::type_get () const YY_NOEXCEPT
-  {
-    return type;
-  }
 
 } // yy
-#line 1184 "build/parser.tab.hpp"
+#line 997 "build/parser.tab.hpp"
 
 
 
