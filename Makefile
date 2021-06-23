@@ -10,7 +10,12 @@ YACC = /usr/bin/bison
 .PHONY: all run
 
 run: build/lang test/test.lang
-	./build/lang test/test.lang
+	@echo "[source]"
+	@cat test/test.lang
+	@echo "\n"
+	@echo "[result]"
+	@./build/lang test/test.lang
+
 
 all: clean build build/$(name)
 
