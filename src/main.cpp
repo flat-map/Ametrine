@@ -4,7 +4,6 @@
 
 #include <build/parser.tab.hpp>
 #include <src/lexer/lexer.hpp>
-
 using std::string;
 
 int main(int argc, const char* argv[]) {
